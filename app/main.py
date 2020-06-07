@@ -27,9 +27,10 @@ db_session = SessionLocal()
 
 # Permet de créer la base de données avec une oeuvre si ce n'est pas déjà fait
 try:
-    test_game = GameDB(
+    test_games = [
+        GameDB(
         id=1,
-        name="Ma partie de test",
+        name="Partie 1",
         duration=7200,
         time_start=1591019348,
         nb_player=0,
@@ -44,8 +45,62 @@ try:
                 game_id=1,
             ),
         ],
-    )
-    db_session.add(test_game)
+    ),
+    GameDB(
+        id=2,
+        name="Partie 2",
+        duration=3600,
+        time_start=1591039848,
+        nb_player=2,
+        nb_player_max=12,
+        keypoints=[
+            KeypointDB(
+                id=2,
+                name="IG21",
+                points=30,
+                url_cible="https://duckduckgo.com",
+                url_audio="https://re2o.rezoleo.fr",
+                game_id=2,
+            ),
+            KeypointDB(
+                id=3,
+                name="ITEM",
+                points=20,
+                url_cible="https://duckduckgo.com",
+                url_audio="https://re2o.rezoleo.fr",
+                game_id=2,
+            ),
+        ],
+    ),
+    GameDB(
+        id=3,
+        name="Partie 3",
+        duration=9780,
+        time_start=1591019348,
+        nb_player=4,
+        nb_player_max=8,
+        keypoints=[
+            KeypointDB(
+                id=4,
+                name="Centrale Paris",
+                points=10,
+                url_cible="https://duckduckgo.com",
+                url_audio="https://rezoleo.fr",
+                game_id=3,
+            ),
+            KeypointDB(
+                id=5,
+                name="Centrale Lyon",
+                points=10,
+                url_cible="https://duckduckgo.com",
+                url_audio="https://rezoleo.fr",
+                game_id=3,
+            ),
+        ],
+    ),
+    ]
+    
+    db_session.add_all(test_games)
     db_session.commit()
 
 except exc.IntegrityError:
