@@ -12,7 +12,7 @@ Python 3.6+ nécessaire
 
 ## Déploiement
 
-Le plus simple pour le déploiement est d'utiliser docker avec le `Dockerfile` fourni (`docker build . -t arriddle --build-args API_VERSION=1`)
+Le plus simple pour le déploiement est d'utiliser docker avec le `Dockerfile` fourni (`docker build . -t arriddle --build-arg API_VERSION=1`)
 Pour lancer le conteneur Docker  : `docker run -p 8000:8000 -it arriddle`
 Dans le cas d'une utilisation avec un reverse proxy tel que Traefik, on peut également utiliser le `docker-compose.yml` fourni.
 Dans ce cas, on pourra simplement faire `docker-compose up -d` après avoir paramétré les champs du docker-compose
