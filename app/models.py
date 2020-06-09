@@ -17,7 +17,6 @@ class Keypoint(BaseModel):
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
     latitude: Optional[float] = Schema(..., "Latitude du point clef")
     longitude: Optional[float] = Schema(..., "Longitude du point clef")
-    game_id: Optional[int] = Schema(None, gt=0, description="Id de la partie")
     users: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
 
     class Config:
@@ -36,9 +35,10 @@ class Game(BaseModel):
     name: str = Schema(..., min_length=1, description="Nom de la partie")
     duration: Optional[int] = Schema(..., description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
-    nb_player: int = Schema(..., description="Nombre de joueurs")
     nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
     keypoints: List[BaseModel] = Schema([], description="Points clefs composant la partie")
+    users: List[BaseModel] = Schema([], description="Joueurs de la partie")
+
     class Config:
         orm_mode = True
 
@@ -68,7 +68,7 @@ class KeypointDB(Base):
 
 class GameDB(Base):
     __tablename__ = "games"
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     duration = Column(Integer, nullable=False)
     time_start = Column(Integer, nullable=False)
@@ -77,3 +77,8 @@ class GameDB(Base):
 
     # jointure
     keypoints = relationship("KeypointDB", back_populates="game")
+
+class UserDB(Base):
+    __tablename__ = "users"
+    name = Column(String, primary_key=True, nullable=False)
+    points = Column(Integer, nullable=False)
