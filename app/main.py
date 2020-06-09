@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Depends, Form, File, UploadFile
-from models import Base, Game, GameDB, Keypoint, KeypointDB
+from models import Base, Game, GameDB, Keypoint, KeypointDB, User, UserDB
 
 from sqlalchemy import create_engine
 from sqlalchemy import exc
@@ -152,6 +152,15 @@ def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
         .all()
     )
 
+def get_all_users(db_session: Session, game_id: int) -> List[Optional[UsersDB]]:
+    return (
+        db_session.query(GameDB)
+        .options(
+            joinedload(GameDB.keypoints),
+        )  # L'option joinedload réalise la jointure dans python
+        .filter(GameDB.id == game_id)
+        .all()
+    )
 
 app = FastAPI(title="ARriddle API", version=os.getenv("API_VERSION", "dev"))
 
@@ -191,6 +200,23 @@ async def read_all_games(db: Session = Depends(get_db)):
     if games is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return games
+
+@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id", response_model=List[Users])
+async def read_users(game_id: int, db: Session = Depends(get_db)):
+    users = get_all_users(db, game_id=game_id)
+    if users is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    return users
+
+
+@app.get("/games", summary="Récupère toutes les parties", response_model=List[Game])
+async def read_all_games(db: Session = Depends(get_db)):
+    games = get_all_games(db)
+    if games is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    return games
+
+
 
 
 if __name__ == '__main__':
