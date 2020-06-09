@@ -7,6 +7,9 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 
+
+
+
 class Keypoint(BaseModel):
     id: int = Schema(..., gt=0, description="Id du points d'intérêt")
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
@@ -15,6 +18,13 @@ class Keypoint(BaseModel):
         None, description="Url de l'image")
     url_audio: Optional[str] = Schema(None, description="Url du fichier audio")
     game_id: Optional[int] = Schema(None, gt=0, description="Id de la partie")
+    class Config:
+        orm_mode = True
+
+class User(BaseModel):
+    name: str = Schema(...,min_length=1, description="Nom de l'utilisateur")
+    points: int = Schema(..., description="Nombre de points")
+    keypoints: List[Keypoint] = Schema([], description="Points clefs composant la partie")
     class Config:
         orm_mode = True
 
