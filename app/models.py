@@ -6,10 +6,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
-
-
-
-
 class Keypoint(BaseModel):
     id: int = Schema(..., gt=0, description="Id du points d'intérêt")
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
@@ -22,10 +18,12 @@ class Keypoint(BaseModel):
     class Config:
         orm_mode = True
 
+
 class User(BaseModel):
-    name: str = Schema(...,min_length=1, description="Nom de l'utilisateur")
+    name: str = Schema(..., min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
     keypoints: List[BaseModel] = Schema([], description="Points clefs résolus")
+
     class Config:
         orm_mode = True
 
@@ -43,12 +41,8 @@ class Game(BaseModel):
         orm_mode = True
 
 
-
-"""
-class User(BaseModel):
-    id: int = Schema(..., gt=0, description="Id de l'utilisateur")
-"""
 Base = declarative_base()
+
 
 # Transcription des classes de models.py pour les rendre
 # au même format que la BdD.
@@ -59,11 +53,11 @@ class KeypointDB(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
     name = Column(String, nullable=False)
     points = Column(Integer, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
     url_cible = Column(String)
-    url_audio = Column(String)
-    game_id = Column(Integer, ForeignKey("games.id"), nullable=False)
     # jointure
-    game = relationship("GameDB", back_populates="keypoints")
+    users = relationship("UserDB", back_populates="keypoints")
 
 
 class GameDB(Base):
@@ -73,12 +67,14 @@ class GameDB(Base):
     duration = Column(Integer, nullable=False)
     time_start = Column(Integer, nullable=False)
     nb_player = Column(Integer, nullable=False)
-    nb_player_max = Column(Integer, nullable=False)
 
     # jointure
     keypoints = relationship("KeypointDB", back_populates="game")
+    users = relationship("UserDB", back_populates="game")
+
 
 class UserDB(Base):
     __tablename__ = "users"
     name = Column(String, primary_key=True, nullable=False)
     points = Column(Integer, nullable=False)
+    keypoints = relationship("KeypointDB", back_populates="game")
