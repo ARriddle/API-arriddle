@@ -14,30 +14,31 @@ class Keypoint(BaseModel):
     id: int = Schema(..., gt=0, description="Id du points d'intérêt")
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
     points: int = Schema(..., description="Nombre de points")
-    url_cible: Optional[str] = Schema(
-        None, description="Url de l'image")
-    url_audio: Optional[str] = Schema(None, description="Url du fichier audio")
+    url_cible: Optional[str] = Schema(None, description="Url de l'image")
+    latitude: Optional[float] = Schema(..., "Latitude du point clef")
+    longitude: Optional[float] = Schema(..., "Longitude du point clef")
     game_id: Optional[int] = Schema(None, gt=0, description="Id de la partie")
+    users: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
+
     class Config:
         orm_mode = True
 
 class User(BaseModel):
     name: str = Schema(...,min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
-    keypoints: List[Keypoint] = Schema([], description="Points clefs composant la partie")
+    keypoints: List[BaseModel] = Schema([], description="Points clefs résolus")
     class Config:
         orm_mode = True
 
 
 class Game(BaseModel):
-    id: int = Schema(..., gt=0, description="Id de la partie")
+    id: str = Schema(..., description="Id de la partie")
     name: str = Schema(..., min_length=1, description="Nom de la partie")
-    duration: int = Schema(..., description="Durée de la partie")
+    duration: Optional[int] = Schema(..., description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
     nb_player: int = Schema(..., description="Nombre de joueurs")
-    nb_player_max: int = Schema(..., description="Nombre de joueurs max")
-    keypoints: List[Keypoint] = Schema(
-        [], description="Points clefs composant la partie")
+    nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
+    keypoints: List[BaseModel] = Schema([], description="Points clefs composant la partie")
     class Config:
         orm_mode = True
 
