@@ -15,7 +15,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.status import HTTP_404_NOT_FOUND
 
-SQLALCHEMY_DATABASE_URI = "sqlite:///./database_arriddle.db"
+SQLALCHEMY_DATABASE_URI = "sqlite:///./database_arriddleTest.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False}
@@ -29,77 +29,100 @@ db_session = SessionLocal()
 try:
     test_games = [
         GameDB(
-        id=1,
-        name="Partie 1",
-        duration=7200,
-        time_start=1591019348,
-        nb_player=0,
-        nb_player_max=12,
-        keypoints=[
-            KeypointDB(
-                id=1,
-                name="Centrale Lille",
-                points=10,
-                url_cible="https://duckduckgo.com",
-                url_audio="https://rezoleo.fr",
-                game_id=1,
-            ),
-        ],
-    ),
-    GameDB(
-        id=2,
-        name="Partie 2",
-        duration=3600,
-        time_start=1591039848,
-        nb_player=2,
-        nb_player_max=12,
-        keypoints=[
-            KeypointDB(
-                id=2,
-                name="IG21",
-                points=30,
-                url_cible="https://duckduckgo.com",
-                url_audio="https://re2o.rezoleo.fr",
-                game_id=2,
-            ),
-            KeypointDB(
-                id=3,
-                name="ITEM",
-                points=20,
-                url_cible="https://duckduckgo.com",
-                url_audio="https://re2o.rezoleo.fr",
-                game_id=2,
-            ),
-        ],
-    ),
-    GameDB(
-        id=3,
-        name="Partie 3",
-        duration=9780,
-        time_start=1591019348,
-        nb_player=4,
-        nb_player_max=8,
-        keypoints=[
-            KeypointDB(
-                id=4,
-                name="Centrale Paris",
-                points=10,
-                url_cible="https://duckduckgo.com",
-                url_audio="https://rezoleo.fr",
-                game_id=3,
-            ),
-            KeypointDB(
-                id=5,
-                name="Centrale Lyon",
-                points=10,
-                url_cible="https://duckduckgo.com",
-                url_audio="https://rezoleo.fr",
-                game_id=3,
-            ),
-        ],
-    ),
+            id="JKDKJFD3",
+            name="Partie 1",
+            duration=7200,
+            time_start=1591019348,
+            nb_player_max=12,
+            keypoints=[
+                KeypointDB(
+                    id=1,
+                    name="Centrale Lille",
+                    points=10,
+                    url_cible="https://duckduckgo.com",
+                    latitude=1232,
+                    longitude=12342,
+                ),
+            ],
+            users=[
+                UserDB(
+                    name="toto",
+                    points=20,
+                    game_id="JKDKJFD3"
+                )
+            ]
+        ),
+        GameDB(
+            id="DJ83JDJF",
+            name="Partie 2",
+            duration=3600,
+            time_start=1591039848,
+            nb_player_max=12,
+            keypoints=[
+                KeypointDB(
+                    id=2,
+                    name="IG21",
+                    points=30,
+                    url_cible="https://duckduckgo.com",
+                    latitude=12,
+                    longitude=132,
+                ),
+                KeypointDB(
+                    id=3,
+                    name="ITEM",
+                    points=20,
+                    url_cible="https://duckduckgo.com",
+                    latitude=3234,
+                    longitude=23432,
+                ),
+            ],
+            users=[
+                UserDB(
+                    name="titi",
+                    points=203,
+                    game_id="DJ83JDJF",
+                )
+            ]
+        ),
+        GameDB(
+            id="FUEIJE23",
+            name="Partie 3",
+            duration=9780,
+            time_start=1591019348,
+            nb_player_max=8,
+            keypoints=[
+                KeypointDB(
+                    id=4,
+                    name="Centrale Paris",
+                    points=10,
+                    url_cible="https://duckduckgo.com",
+                    latitude=323424,
+                    longitude=234323434,
+                ),
+                KeypointDB(
+                    id=5,
+                    name="Centrale Lyon",
+                    points=10,
+                    url_cible="https://duckduckgo.com",
+                    latitude=32342334,
+                    longitude=234323543,
+                ),
+            ],
+            users=[
+                UserDB(
+                    name="titi",
+                    points=203,
+                    game_id="FUEIJE23",
+                ),
+                UserDB(
+                    name="tibi",
+                    points=223,
+                    game_id="FUEIJE23",
+                )
+            ]
+        ),
     ]
-    
+
     db_session.add_all(test_games)
     db_session.commit()
 
@@ -120,47 +143,45 @@ def get_db():
 def get_keypoint(db_session: Session, keypoint_id: int) -> Optional[KeypointDB]:
     return (
         db_session.query(KeypointDB)
-        .filter(KeypointDB.id == keypoint_id)
-        .first()
+            .filter(KeypointDB.id == keypoint_id)
+            .first()
     )
 
 
 def get_all_keypoints(db_session: Session) -> List[Optional[KeypointDB]]:
     return (
         db_session.query(KeypointDB)
-        .options(
+            .options(
             joinedload(KeypointDB.game),
         )  # L'option joinedload réalise la jointure dans python
-        .all()
+            .all()
     )
 
 
-def get_game(db_session: Session, game_id: int) -> Optional[GameDB]:
+def get_game(db_session: Session, game_id: str) -> Optional[GameDB]:
     return (
         db_session.query(GameDB)
-        .filter(GameDB.id == game_id)
-        .first()
+            .filter(GameDB.id == game_id)
+            .first()
     )
 
 
 def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
     return (
         db_session.query(GameDB)
-        .options(
-            joinedload(GameDB.keypoints),
-        )  # L'option joinedload réalise la jointure dans python
-        .all()
-    )
+            .options(joinedload(GameDB.keypoints), )
+            .all()
+    ) 
 
-def get_all_users(db_session: Session, game_id: int) -> List[Optional[UsersDB]]:
+
+def get_all_users(db_session: Session, game_id: str) -> List[Optional[UserDB]]:
     return (
         db_session.query(GameDB)
-        .options(
-            joinedload(GameDB.keypoints),
-        )  # L'option joinedload réalise la jointure dans python
-        .filter(GameDB.id == game_id)
-        .all()
+            .options(joinedload(GameDB.keypoints),)  # L'option joinedload réalise la jointure dans python
+            .filter(GameDB.id == game_id)
+            .all()
     )
+
 
 app = FastAPI(title="ARriddle API", version=os.getenv("API_VERSION", "dev"))
 
@@ -187,7 +208,7 @@ async def read_all_keypoints(db: Session = Depends(get_db)):
 
 
 @app.get("/games/{game_id}", summary="Récupère la partie correspondante à l'id", response_model=Game)
-async def read_game(game_id: int, db: Session = Depends(get_db)):
+async def read_game(game_id: str, db: Session = Depends(get_db)):
     game = get_game(db, game_id=game_id)
     if game is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
@@ -201,8 +222,10 @@ async def read_all_games(db: Session = Depends(get_db)):
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return games
 
-@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id", response_model=List[Users])
-async def read_users(game_id: int, db: Session = Depends(get_db)):
+
+@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id",
+         response_model=List[User])
+async def read_users(game_id: str, db: Session = Depends(get_db)):
     users = get_all_users(db, game_id=game_id)
     if users is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
@@ -215,8 +238,6 @@ async def read_all_games(db: Session = Depends(get_db)):
     if games is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return games
-
-
 
 
 if __name__ == '__main__':

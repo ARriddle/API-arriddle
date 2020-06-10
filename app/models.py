@@ -11,10 +11,10 @@ class Keypoint(BaseModel):
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
     points: int = Schema(..., description="Nombre de points")
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
-    latitude: Optional[float] = Schema(..., "Latitude du point clef")
-    longitude: Optional[float] = Schema(..., "Longitude du point clef")
+    latitude: Optional[float] = Schema(..., description = "Latitude du point clef")
+    longitude: Optional[float] = Schema(..., description = "Longitude du point clef")
     users: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
-
+    game_id: Optional[str] = Schema(None, description="Id de la partie")
     class Config:
         orm_mode = True
 
@@ -22,7 +22,8 @@ class Keypoint(BaseModel):
 class User(BaseModel):
     name: str = Schema(..., min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
-    keypoints: List[BaseModel] = Schema([], description="Points clefs résolus")
+    keypoints: Optional[List[BaseModel]] = Schema([], description="Points clefs résolus")
+    game_id: Optional[str] = Schema(None, description="Id de la partie")
 
     class Config:
         orm_mode = True
@@ -56,8 +57,10 @@ class KeypointDB(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     url_cible = Column(String)
+    game_id = Column(String, ForeignKey("games.id"), nullable=False)
     # jointure
-    users = relationship("UserDB", back_populates="keypoints")
+    game = relationship("GameDB", back_populates="keypoints")
+
 
 
 class GameDB(Base):
@@ -66,15 +69,17 @@ class GameDB(Base):
     name = Column(String, nullable=False)
     duration = Column(Integer, nullable=False)
     time_start = Column(Integer, nullable=False)
-    nb_player = Column(Integer, nullable=False)
-
-    # jointure
+    nb_player_max = Column(Integer, nullable=False)
     keypoints = relationship("KeypointDB", back_populates="game")
     users = relationship("UserDB", back_populates="game")
+
+
 
 
 class UserDB(Base):
     __tablename__ = "users"
     name = Column(String, primary_key=True, nullable=False)
     points = Column(Integer, nullable=False)
-    keypoints = relationship("KeypointDB", back_populates="game")
+    game_id = Column(String, ForeignKey("games.id"), nullable=False)
+    game = relationship("GameDB", back_populates="users")
+
