@@ -36,8 +36,8 @@ class Game(BaseModel):
     duration: Optional[int] = Schema(..., description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
     nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
-    keypoints: Optional[List[BaseModel]] = Schema([], description="Points clefs composant la partie")
-    users: Optional[List[BaseModel]] = Schema([], description="Joueurs de la partie")
+    keypoints: Optional[List[Keypoint]] = Schema([], description="Points clefs composant la partie")
+    users: Optional[List[User]] = Schema([], description="Joueurs de la partie")
 
     class Config:
         orm_mode = True
