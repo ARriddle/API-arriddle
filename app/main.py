@@ -28,30 +28,79 @@ db_session = SessionLocal()
 # Permet de créer la base de données avec une oeuvre si ce n'est pas déjà fait
 try:
     test_games = [
+        UserDB(
+            name="toto",
+            points=20,
+            game_id="JKDKJFD3"
+        ),
+        UserDB(
+            name="titi",
+            points=203,
+            game_id="DJ83JDJF",
+        ),
+        UserDB(
+            name="tibi",
+            points=223,
+            game_id="FUEIJE23",
+        ),
+        UserDB(
+            name="thib",
+            points=2343,
+            game_id="FUEIJE23",
+        ),
+        KeypointDB(
+            id=4,
+            name="Centrale Paris",
+            points=10,
+            url_cible="https://duckduckgo.com",
+            latitude=323424,
+            longitude=234323434,
+            game_id="FUEIJE23",
+        ),
+        KeypointDB(
+            id=5,
+            name="Centrale Lyon",
+            points=10,
+            url_cible="https://duckduckgo.com",
+            latitude=32342334,
+            longitude=234323543,
+            game_id="FUEIJE23",
+        ),
+        KeypointDB(
+            id=1,
+            name="Centrale Lille",
+            points=10,
+            url_cible="https://duckduckgo.com",
+            latitude=1232,
+            longitude=12342,
+            game_id="JKDKJFD3"
+        ),
+        KeypointDB(
+            id=2,
+            name="IG21",
+            points=30,
+            url_cible="https://duckduckgo.com",
+            latitude=12,
+            longitude=132,
+            game_id="DJ83JDJF",
+        ),
+        KeypointDB(
+            id=3,
+            name="ITEM",
+            points=20,
+            url_cible="https://duckduckgo.com",
+            latitude=3234,
+            longitude=23432,
+            game_id="DJ83JDJF",
+        ),
         GameDB(
             id="JKDKJFD3",
             name="Partie 1",
             duration=7200,
             time_start=1591019348,
             nb_player_max=12,
-            keypoints=[
-                KeypointDB(
-                    id=1,
-                    name="Centrale Lille",
-                    points=10,
-                    url_cible="https://duckduckgo.com",
-                    latitude=1232,
-                    longitude=12342,
-                    game_id="JKDKJFD3"
-                ),
-            ],
-            users=[
-                UserDB(
-                    name="toto",
-                    points=20,
-                    game_id="JKDKJFD3"
-                )
-            ]
+            keypoints=[],
+            users=[]
         ),
         GameDB(
             id="DJ83JDJF",
@@ -59,33 +108,8 @@ try:
             duration=3600,
             time_start=1591039848,
             nb_player_max=12,
-            keypoints=[
-                KeypointDB(
-                    id=2,
-                    name="IG21",
-                    points=30,
-                    url_cible="https://duckduckgo.com",
-                    latitude=12,
-                    longitude=132,
-                    game_id="DJ83JDJF",
-                ),
-                KeypointDB(
-                    id=3,
-                    name="ITEM",
-                    points=20,
-                    url_cible="https://duckduckgo.com",
-                    latitude=3234,
-                    longitude=23432,
-                    game_id="DJ83JDJF",
-                ),
-            ],
-            users=[
-                UserDB(
-                    name="titi",
-                    points=203,
-                    game_id="DJ83JDJF",
-                )
-            ]
+            keypoints=[],
+            users=[],
         ),
         GameDB(
             id="FUEIJE23",
@@ -93,38 +117,8 @@ try:
             duration=9780,
             time_start=1591019348,
             nb_player_max=8,
-            keypoints=[
-                KeypointDB(
-                    id=4,
-                    name="Centrale Paris",
-                    points=10,
-                    url_cible="https://duckduckgo.com",
-                    latitude=323424,
-                    longitude=234323434,
-                    game_id="FUEIJE23",
-                ),
-                KeypointDB(
-                    id=5,
-                    name="Centrale Lyon",
-                    points=10,
-                    url_cible="https://duckduckgo.com",
-                    latitude=32342334,
-                    longitude=234323543,
-                    game_id="FUEIJE23",
-                ),
-            ],
-            users=[
-                UserDB(
-                    name="titi",
-                    points=203,
-                    game_id="FUEIJE23",
-                ),
-                UserDB(
-                    name="tibi",
-                    points=223,
-                    game_id="FUEIJE23",
-                )
-            ]
+            keypoints=[],
+            users=[]
         ),
     ]
 
@@ -176,15 +170,22 @@ def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
         db_session.query(GameDB)
             .options(joinedload(GameDB.keypoints), )
             .all()
-    ) 
+    )
 
 
 def get_all_users(db_session: Session, game_id: str) -> List[Optional[UserDB]]:
     return (
-        db_session.query(GameDB)
-            .options(joinedload(GameDB.keypoints),)  # L'option joinedload réalise la jointure dans python
-            .filter(GameDB.id == game_id)
+        db_session.query(UserDB)
+            .filter(UserDB.game_id == game_id)
             .all()
+    )
+
+def get_user(db_session: Session, user_name: str, game_id: str) -> Optional[UserDB]:
+    return (
+        db_session.query(UserDB)
+            .filter(UserDB.game_id == game_id)
+            .filter(UserDB.name == user_name)
+            .first()
     )
 
 
@@ -228,13 +229,6 @@ async def read_all_games(db: Session = Depends(get_db)):
     return games
 
 
-@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id",
-         response_model=List[User])
-async def read_users(game_id: str, db: Session = Depends(get_db)):
-    users = get_all_users(db, game_id=game_id)
-    if users is None:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
-    return users
 
 
 @app.get("/games", summary="Récupère toutes les parties", response_model=List[Game])
@@ -243,6 +237,22 @@ async def read_all_games(db: Session = Depends(get_db)):
     if games is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return games
+
+
+@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id",
+         response_model=List[User])
+async def read_users(game_id: str, db: Session = Depends(get_db)):
+    users = get_all_users(db, game_id=game_id)
+    if users is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    return users
+
+@app.get("/games/{game_id}/users/{user_name}", summary="Récupère l'utilisateur correspondant à l'id de la partie correspondante à l'id de partie", response_model=User)
+async def read_user(user_name: str, game_id: str, db: Session = Depends(get_db)):
+    users = get_user(db, user_name=user_name, game_id=game_id)
+    if users is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    return users
 
 
 if __name__ == '__main__':
