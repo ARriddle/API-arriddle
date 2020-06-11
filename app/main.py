@@ -201,6 +201,7 @@ def get_all_users(db_session: Session, game_id: str) -> List[Optional[UserDB]]:
 
 app = FastAPI(title="ARriddle API", version=os.getenv("API_VERSION", "dev"))
 
+# ---------------------------------- GET -------------------------------
 
 @app.get("/")
 async def read_root():
@@ -253,6 +254,29 @@ async def read_user(user_id: str, game_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return users
 
+# ---------------------------------- POST -------------------------------
+
+@app.post("/games", summary="Crée une partie")
+async def create_game(
+    name: str = Form(...),
+    duration: int = Form(...),
+    time_start: int = Form(...),
+    nb_player_max: int = Form(...),
+    db: Session = Depends(get_db)):
+
+
+    # Génération de la nouvelle partie
+    new_game = GameDB(
+        id="feagf",
+        name=name,
+        duration=duration,
+        time_start=time_start,
+        nb_player_max = nb_player_max,
+    )
+    db_session.add(new_game)
+    db_session.commit()
+    db_session.refresh(new_game)
+    return new_game
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
