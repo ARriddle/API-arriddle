@@ -11,8 +11,8 @@ class Keypoint(BaseModel):
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
     points: int = Schema(..., description="Nombre de points")
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
-    latitude: Optional[float] = Schema(..., description = "Latitude du point clef")
-    longitude: Optional[float] = Schema(..., description = "Longitude du point clef")
+    latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
+    longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
     users_solvers: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
     game_id: Optional[str] = Schema(None, description="Id de la partie")
 
@@ -24,8 +24,8 @@ class User(BaseModel):
     id: int = Schema(..., gt=0, description="Id de l'utilisateur")
     name: str = Schema(..., min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
-    keypoints_solved: Optional[List[BaseModel]] = Schema([], description="Points clefs résolus")
-    game_id: Optional[str] = Schema(None, description="Id de la partie")
+    keypoints_solved: List[BaseModel] = Schema([], description="Points clefs résolus")
+    game_id: str = Schema(None, description="Id de la partie")
 
     class Config:
         orm_mode = True
@@ -34,11 +34,11 @@ class User(BaseModel):
 class Game(BaseModel):
     id: str = Schema(..., description="Id de la partie")
     name: str = Schema(..., min_length=1, description="Nom de la partie")
-    duration: Optional[int] = Schema(..., description="Durée de la partie")
+    duration: Optional[int] = Schema(0, description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
     nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
-    keypoints: Optional[List[Keypoint]] = Schema([], description="Points clefs composant la partie")
-    users: Optional[List[User]] = Schema([], description="Joueurs de la partie")
+    keypoints: List[Keypoint] = Schema([], description="Points clefs composant la partie")
+    users: List[User] = Schema([], description="Joueurs de la partie")
 
     class Config:
         orm_mode = True
