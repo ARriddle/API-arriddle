@@ -15,8 +15,8 @@ services:
       - "traefik.frontend.rule=Host:arridle.rezoleo.fr"
       - "traefik.port=8000"
       - "traefik.network=proxy"
-    volumes:
-      - "/home/divers/ctf/writable/web1:/var/www/html/"
+    #volumes:
+    #  - "path"
 
 networks:
   proxy:
