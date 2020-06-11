@@ -15,7 +15,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.status import HTTP_404_NOT_FOUND
 
-SQLALCHEMY_DATABASE_URI = "sqlite:///./database_arriddleTest.db"
+SQLALCHEMY_DATABASE_URI = "sqlite:///./database_arriddle.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False}
@@ -42,6 +42,7 @@ try:
                     url_cible="https://duckduckgo.com",
                     latitude=1232,
                     longitude=12342,
+                    game_id="JKDKJFD3"
                 ),
             ],
             users=[
@@ -66,6 +67,7 @@ try:
                     url_cible="https://duckduckgo.com",
                     latitude=12,
                     longitude=132,
+                    game_id="DJ83JDJF",
                 ),
                 KeypointDB(
                     id=3,
@@ -74,6 +76,7 @@ try:
                     url_cible="https://duckduckgo.com",
                     latitude=3234,
                     longitude=23432,
+                    game_id="DJ83JDJF",
                 ),
             ],
             users=[
@@ -98,6 +101,7 @@ try:
                     url_cible="https://duckduckgo.com",
                     latitude=323424,
                     longitude=234323434,
+                    game_id="FUEIJE23",
                 ),
                 KeypointDB(
                     id=5,
@@ -106,6 +110,7 @@ try:
                     url_cible="https://duckduckgo.com",
                     latitude=32342334,
                     longitude=234323543,
+                    game_id="FUEIJE23",
                 ),
             ],
             users=[

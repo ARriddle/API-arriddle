@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Schema, PositiveInt
 from typing import List, Optional
-from sqlalchemy import Boolean, Column, Integer, String, create_engine, Float
+from sqlalchemy import Boolean, Column, Integer, String, create_engine, Float, ARRAY
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -82,4 +82,3 @@ class UserDB(Base):
     points = Column(Integer, nullable=False)
     game_id = Column(String, ForeignKey("games.id"), nullable=False)
     game = relationship("GameDB", back_populates="users")
-
