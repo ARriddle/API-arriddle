@@ -21,6 +21,7 @@ class Keypoint(BaseModel):
 
 
 class User(BaseModel):
+    id: int = Schema(..., gt=0, description="Id de l'utilisateur")
     name: str = Schema(..., min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
     keypoints: Optional[List[BaseModel]] = Schema([], description="Points clefs résolus")
@@ -79,7 +80,8 @@ class GameDB(Base):
 
 class UserDB(Base):
     __tablename__ = "users"
-    name = Column(String, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    name = Column(String, nullable=False)
     points = Column(Integer, nullable=False)
     game_id = Column(String, ForeignKey("games.id"), nullable=False)
     game = relationship("GameDB", back_populates="users")

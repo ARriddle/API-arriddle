@@ -170,11 +170,11 @@ def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
             .all()
     )
 
-def get_user(db_session: Session, user_name: str, game_id: str) -> Optional[UserDB]:
+def get_user(db_session: Session, user_id: str, game_id: str) -> Optional[UserDB]:
     return (
         db_session.query(UserDB)
             .filter(UserDB.game_id == game_id)
-            .filter(UserDB.name == user_name)
+            .filter(UserDB.id == user_id)
             .first()
     )
 
@@ -233,9 +233,9 @@ async def read_users(game_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return users
 
-@app.get("/games/{game_id}/users/{user_name}", summary="Récupère l'utilisateur correspondant à l'id de la partie correspondante à l'id de partie", response_model=User)
-async def read_user(user_name: str, game_id: str, db: Session = Depends(get_db)):
-    users = get_user(db, user_name=user_name, game_id=game_id)
+@app.get("/games/{game_id}/users/{user_id}", summary="Récupère l'utilisateur correspondant à l'id de la partie correspondante à l'id de partie", response_model=User)
+async def read_user(user_id: str, game_id: str, db: Session = Depends(get_db)):
+    users = get_user(db, user_id=user_id, game_id=game_id)
     if users is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return users
