@@ -31,22 +31,28 @@ try:
         UserDB(
             name="toto",
             points=20,
-            game_id="JKDKJFD3"
+            game_id="JKDKJFD3",
+            keypoints_solved=[]
         ),
         UserDB(
             name="titi",
             points=203,
             game_id="DJ83JDJF",
+            keypoints_solved=[]
+
         ),
         UserDB(
             name="tibi",
             points=223,
             game_id="FUEIJE23",
+            keypoints_solved=[]
+
         ),
         UserDB(
             name="thib",
             points=2343,
             game_id="FUEIJE23",
+            keypoints_solved=[]
         ),
         KeypointDB(
             id=4,
@@ -56,6 +62,7 @@ try:
             latitude=323424,
             longitude=234323434,
             game_id="FUEIJE23",
+            users_solvers=[]
         ),
         KeypointDB(
             id=5,
@@ -65,6 +72,8 @@ try:
             latitude=32342334,
             longitude=234323543,
             game_id="FUEIJE23",
+            users_solvers=[]
+
         ),
         KeypointDB(
             id=1,
@@ -73,7 +82,9 @@ try:
             url_cible="https://duckduckgo.com",
             latitude=1232,
             longitude=12342,
-            game_id="JKDKJFD3"
+            game_id="JKDKJFD3",
+            users_solvers=[]
+
         ),
         KeypointDB(
             id=2,
@@ -83,6 +94,7 @@ try:
             latitude=12,
             longitude=132,
             game_id="DJ83JDJF",
+            users_solvers=[]
         ),
         KeypointDB(
             id=3,
@@ -92,6 +104,7 @@ try:
             latitude=3234,
             longitude=23432,
             game_id="DJ83JDJF",
+            users_solvers=[]
         ),
         GameDB(
             id="JKDKJFD3",
@@ -170,11 +183,11 @@ def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
             .all()
     )
 
-def get_user(db_session: Session, user_name: str, game_id: str) -> Optional[UserDB]:
+def get_user(db_session: Session, user_id: str, game_id: str) -> Optional[UserDB]:
     return (
         db_session.query(UserDB)
             .filter(UserDB.game_id == game_id)
-            .filter(UserDB.name == user_name)
+            .filter(UserDB.id == user_id)
             .first()
     )
 
@@ -233,9 +246,9 @@ async def read_users(game_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return users
 
-@app.get("/games/{game_id}/users/{user_name}", summary="Récupère l'utilisateur correspondant à l'id de la partie correspondante à l'id de partie", response_model=User)
-async def read_user(user_name: str, game_id: str, db: Session = Depends(get_db)):
-    users = get_user(db, user_name=user_name, game_id=game_id)
+@app.get("/games/{game_id}/users/{user_id}", summary="Récupère l'utilisateur correspondant à l'id de la partie correspondante à l'id de partie", response_model=User)
+async def read_user(user_id: str, game_id: str, db: Session = Depends(get_db)):
+    users = get_user(db, user_id=user_id, game_id=game_id)
     if users is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return users
