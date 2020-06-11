@@ -15,6 +15,7 @@ class Keypoint(BaseModel):
     longitude: Optional[float] = Schema(..., description = "Longitude du point clef")
     users: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
     game_id: Optional[str] = Schema(None, description="Id de la partie")
+
     class Config:
         orm_mode = True
 
@@ -35,8 +36,8 @@ class Game(BaseModel):
     duration: Optional[int] = Schema(..., description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
     nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
-    keypoints: List[BaseModel] = Schema([], description="Points clefs composant la partie")
-    users: List[BaseModel] = Schema([], description="Joueurs de la partie")
+    keypoints: Optional[List[BaseModel]] = Schema([], description="Points clefs composant la partie")
+    users: Optional[List[BaseModel]] = Schema([], description="Joueurs de la partie")
 
     class Config:
         orm_mode = True

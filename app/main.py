@@ -168,7 +168,6 @@ def get_game(db_session: Session, game_id: str) -> Optional[GameDB]:
 def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
     return (
         db_session.query(GameDB)
-            .options(joinedload(GameDB.keypoints), )
             .all()
     )
 
