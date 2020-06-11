@@ -139,20 +139,19 @@ def get_db():
         db_session.close()
 
 
-def get_keypoint(db_session: Session, keypoint_id: int) -> Optional[KeypointDB]:
+def get_keypoint(db_session: Session, keypoint_id: int, game_id: str) -> Optional[KeypointDB]:
     return (
         db_session.query(KeypointDB)
+            .filter(UserDB.game_id == game_id)
             .filter(KeypointDB.id == keypoint_id)
             .first()
     )
 
 
-def get_all_keypoints(db_session: Session) -> List[Optional[KeypointDB]]:
+def get_all_keypoints(db_session: Session, game_id: str) -> List[Optional[KeypointDB]]:
     return (
         db_session.query(KeypointDB)
-            .options(
-            joinedload(KeypointDB.game),
-        )  # L'option joinedload réalise la jointure dans python
+            .filter(KeypointDB.game_id == game_id)
             .all()
     )
 
@@ -171,14 +170,6 @@ def get_all_games(db_session: Session) -> List[Optional[GameDB]]:
             .all()
     )
 
-
-def get_all_users(db_session: Session, game_id: str) -> List[Optional[UserDB]]:
-    return (
-        db_session.query(UserDB)
-            .filter(UserDB.game_id == game_id)
-            .all()
-    )
-
 def get_user(db_session: Session, user_name: str, game_id: str) -> Optional[UserDB]:
     return (
         db_session.query(UserDB)
@@ -188,6 +179,13 @@ def get_user(db_session: Session, user_name: str, game_id: str) -> Optional[User
     )
 
 
+def get_all_users(db_session: Session, game_id: str) -> List[Optional[UserDB]]:
+    return (
+        db_session.query(UserDB)
+            .filter(UserDB.game_id == game_id)
+            .all()
+    )
+
 app = FastAPI(title="ARriddle API", version=os.getenv("API_VERSION", "dev"))
 
 
@@ -196,17 +194,17 @@ async def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/keypoints/{keypoint_id}", summary="Récupère le point clé correspondant à l'id", response_model=Keypoint)
-async def read_oeuvre(keypoint_id: int, db: Session = Depends(get_db)):
-    keypoint = get_keypoint(db, keypoint_id=keypoint_id)
+@app.get("/games/{game_id}/keypoints/{keypoint_id}", summary="Récupère le point clé correspondant à l'id", response_model=Keypoint)
+async def read_keypoint(keypoint_id: int, game_id: str, db: Session = Depends(get_db)):
+    keypoint = get_keypoint(db, keypoint_id=keypoint_id, game_id=game_id)
     if keypoint is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return keypoint
 
 
-@app.get("/keypoints", summary="Récupère tous les points clés", response_model=List[Keypoint])
-async def read_all_keypoints(db: Session = Depends(get_db)):
-    keypoints = get_all_keypoints(db)
+@app.get("/games/{game_id}/keypoints", summary="Récupère tous les points clés", response_model=List[Keypoint])
+async def read_all_keypoints(game_id: str, db: Session = Depends(get_db)):
+    keypoints = get_all_keypoints(db, game_id=game_id)
     if keypoints is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return keypoints
@@ -228,18 +226,7 @@ async def read_all_games(db: Session = Depends(get_db)):
     return games
 
 
-
-
-@app.get("/games", summary="Récupère toutes les parties", response_model=List[Game])
-async def read_all_games(db: Session = Depends(get_db)):
-    games = get_all_games(db)
-    if games is None:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
-    return games
-
-
-@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id",
-         response_model=List[User])
+@app.get("/games/{game_id}/users", summary="Récupère les utilisateurs la partie correspondante à l'id", response_model=List[User])
 async def read_users(game_id: str, db: Session = Depends(get_db)):
     users = get_all_users(db, game_id=game_id)
     if users is None:
