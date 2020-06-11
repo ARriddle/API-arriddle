@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel, Schema, PositiveInt
 from typing import List, Optional
 from sqlalchemy import Boolean, Table, Column, Integer, String, create_engine, Float, ARRAY
@@ -13,7 +14,7 @@ class Keypoint(BaseModel):
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
     latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
     longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
-    users_solvers: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
+    users_solvers: List[User] = Schema([], description="Utilisateurs ayant résolu le point clef")
     game_id: Optional[str] = Schema(None, description="Id de la partie")
 
     class Config:
@@ -24,12 +25,11 @@ class User(BaseModel):
     id: int = Schema(..., gt=0, description="Id de l'utilisateur")
     name: str = Schema(..., min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
-    keypoints_solved: List[BaseModel] = Schema([], description="Points clefs résolus")
+    keypoints_solved: List[Keypoint] = Schema([], description="Points clefs résolus")
     game_id: str = Schema(None, description="Id de la partie")
 
     class Config:
         orm_mode = True
-
 
 class Game(BaseModel):
     id: str = Schema(..., description="Id de la partie")
@@ -44,6 +44,10 @@ class Game(BaseModel):
         orm_mode = True
 
 
+
+
+Keypoint.update_forward_refs()
+User.update_forward_refs()
 Base = declarative_base()
 
 
