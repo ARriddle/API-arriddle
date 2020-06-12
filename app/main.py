@@ -5,6 +5,8 @@ from typing import List, Optional
 import uvicorn
 from fastapi import FastAPI, HTTPException, Depends, Form, File, UploadFile
 from models import Base, Game, GameDB, Keypoint, KeypointDB, User, UserDB
+from functions import gen_id
+
 
 from sqlalchemy import create_engine
 from sqlalchemy import exc
@@ -267,7 +269,7 @@ async def create_game(
 
     # Génération de la nouvelle partie
     new_game = GameDB(
-        id="feagf",
+        id=gen_id(8),
         name=name,
         duration=duration,
         time_start=time_start,
