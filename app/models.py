@@ -15,7 +15,7 @@ class Keypoint(BaseModel):
     latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
     longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
     users_solvers: List[User] = Schema([], description="Utilisateurs ayant résolu le point clef")
-    game_id: Optional[str] = Schema(None, description="Id de la partie")
+    game_id: str = Schema(None, description="Id de la partie")
 
     class Config:
         orm_mode = True
@@ -34,9 +34,9 @@ class User(BaseModel):
 class Game(BaseModel):
     id: str = Schema(..., description="Id de la partie")
     name: str = Schema(..., min_length=1, description="Nom de la partie")
-    duration: Optional[int] = Schema(0, description="Durée de la partie")
+    duration: Optional[int] = Schema(None, description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
-    nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
+    nb_player_max: Optional[int] = Schema(None, description="Nombre de joueurs max")
     keypoints: List[Keypoint] = Schema([], description="Points clefs composant la partie")
     users: List[User] = Schema([], description="Joueurs de la partie")
 
@@ -64,9 +64,9 @@ class KeypointDB(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
     points = Column(Integer, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
-    url_cible = Column(String)
+    latitude = Column(Float, nullable=True)    
+    longitude = Column(Float, nullable=True)
+    url_cible = Column(String, nullable=True)
     game_id = Column(String, ForeignKey("games.id"), nullable=False)
     # jointure
     game = relationship("GameDB", back_populates="keypoints")
@@ -79,9 +79,9 @@ class GameDB(Base):
     __tablename__ = "games"
     id = Column(String, primary_key=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
-    duration = Column(Integer, nullable=False)
+    duration = Column(Integer, nullable=True)
     time_start = Column(Integer, nullable=False)
-    nb_player_max = Column(Integer, nullable=False)
+    nb_player_max = Column(Integer, nullable=True)
     keypoints = relationship("KeypointDB", back_populates="game")
     users = relationship("UserDB", back_populates="game")
 

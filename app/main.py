@@ -260,10 +260,10 @@ async def read_user(user_id: str, game_id: str, db: Session = Depends(get_db)):
 
 @app.post("/games", summary="Crée une partie")
 async def create_game(
-    name: str = Form(...),
-    duration: int = Form(...),
-    time_start: int = Form(...),
-    nb_player_max: int = Form(...),
+    name: str,
+    time_start: int,
+    nb_player_max: int = None,
+    duration: int = None,
     db: Session = Depends(get_db)):
 
 
