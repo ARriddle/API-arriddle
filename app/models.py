@@ -43,9 +43,36 @@ class Game(BaseModel):
     class Config:
         orm_mode = True
 
+# ---------- Classes pour les routes PUT
 
+class PutKeypoint(BaseModel):
+    name: Optional[str] = Schema(None, min_length=1, description="Nom du point d'intérêt")
+    points: Optional[int] = Schema(None, description="Nombre de points")
+    url_cible: Optional[str] = Schema(None, description="Url de l'image")
+    latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
+    longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
 
+    class Config:
+        orm_mode = True
 
+class PutUser(BaseModel):
+    name: Optional[str] = Schema(None, min_length=1, description="Nom de l'utilisateur")
+    points: Optional[int] = Schema(None, description="Nombre de points")
+
+    class Config:
+        orm_mode = True
+
+class PutGame(BaseModel):
+    name: Optional[str] = Schema(None, min_length=1, description="Nom de la partie")
+    duration: Optional[int] = Schema(None, description="Durée de la partie")
+    time_start: Optional[int] = Schema(None, description="Heure de début de la partie")
+    nb_player_max: Optional[int] = Schema(None, description="Nombre de joueurs max")
+  
+    class Config:
+        orm_mode = True
+
+PutKeypoint.update_forward_refs()
+PutUser.update_forward_refs()
 Keypoint.update_forward_refs()
 User.update_forward_refs()
 Base = declarative_base()
@@ -73,8 +100,6 @@ class KeypointDB(Base):
     users_solvers = relationship("UserDB", secondary=keypoints_users, back_populates="keypoints_solved")
 
 
-
-
 class GameDB(Base):
     __tablename__ = "games"
     id = Column(String, primary_key=True, nullable=False)
@@ -84,8 +109,6 @@ class GameDB(Base):
     nb_player_max = Column(Integer, nullable=True)
     keypoints = relationship("KeypointDB", back_populates="game", cascade="delete")
     users = relationship("UserDB", back_populates="game", cascade="delete")
-
-
 
 
 class UserDB(Base):

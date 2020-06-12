@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Depends, Form, File, UploadFile
-from models import Base, Game, GameDB, Keypoint, KeypointDB, User, UserDB
+from models import Base, Game, GameDB, PutGame, Keypoint, KeypointDB, PutKeypoint, User, UserDB,PutUser
 from functions import gen_id
 
 
@@ -157,7 +157,7 @@ def get_db():
 def get_keypoint(db_session: Session, keypoint_id: int, game_id: str) -> Optional[KeypointDB]:
     return (
         db_session.query(KeypointDB)
-        .filter(UserDB.game_id == game_id)
+        .filter(KeypointDB.game_id == game_id)
         .filter(KeypointDB.id == keypoint_id)
         .first()
     )
@@ -335,10 +335,12 @@ async def create_keypoints(
 async def delete_game(
         game_id: str,
         db: Session = Depends(get_db)):
-
-    game = db_session.query(GameDB).filter(GameDB.id == game_id).first()
-    db_session.delete(game)
-    db_session.commit()
+    try:
+        game = db_session.query(GameDB).filter(GameDB.id == game_id).first()
+        db_session.delete(game)
+        db_session.commit()
+    except:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
 
 
 @app.delete("/games/{game_id}/users/{user_id}", summary="Supprime un user")
@@ -346,10 +348,12 @@ async def delete_user(
         game_id: str,
         user_id: int,
         db: Session = Depends(get_db)):
-
-    user = db_session.query(UserDB).filter(UserDB.id == user_id).filter(UserDB.game_id==game_id).first()
-    db_session.delete(user)
-    db_session.commit()
+    try:
+        user = db_session.query(UserDB).filter(UserDB.id == user_id).filter(UserDB.game_id==game_id).first()
+        db_session.delete(user)
+        db_session.commit()
+    except:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
 
 
 @app.delete("/games/{game_id}/keypoints/{keypoint_id}", summary="Supprime un keypoint")
@@ -357,10 +361,71 @@ async def delete_keypoint(
         game_id: str,
         keypoint_id: int,
         db: Session = Depends(get_db)):
+    try:
+        keypoint = db_session.query(KeypointDB).filter(KeypointDB.id == keypoint_id).filter(KeypointDB.game_id==game_id).first()
+        db_session.delete(keypoint)
+        db_session.commit()
+    except:
+            raise HTTPException(status_code=HTTP_404_NOT_FOUND)
 
-    keypoint = db_session.query(KeypointDB).filter(KeypointDB.id == keypoint_id).filter(KeypointDB.game_id==game_id).first()
-    db_session.delete(keypoint)
-    db_session.commit()
+
+# ---------------------------- PUT --------------------------------------------
+
+@app.put("/games/{game_id}", summary="Met à jour une partie", response_model=Game)
+async def update_game(
+    game_id: str, 
+    updates: PutGame,
+    db: Session = Depends(get_db)
+):
+    
+    game = get_game(db, game_id=game_id)
+    if game is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    
+    for key, value in updates.dict().items():
+        if value is not None:
+            setattr(game, key, value)
+    db.commit()
+    db.refresh(game)
+    return game
+
+@app.put("/games/{game_id}/keypoints/{keypoint_id}", summary="Met à jour un keypoint", response_model=Keypoint)
+async def update_game(
+    game_id: str, 
+    keypoint_id: int,
+    updates: PutKeypoint,
+    db: Session = Depends(get_db)
+):
+    
+    keypoint = get_keypoint(db, game_id=game_id, keypoint_id=keypoint_id)
+    if keypoint is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    
+    for key, value in updates.dict().items():
+        if value is not None:
+            setattr(keypoint, key, value)
+    db.commit()
+    db.refresh(keypoint)
+    return keypoint
+
+@app.put("/games/{game_id}/users/{user_id}", summary="Met à jour un user", response_model=User)
+async def update_game(
+    game_id: str, 
+    user_id: int,
+    updates: PutUser,
+    db: Session = Depends(get_db)
+):
+    
+    user = get_user(db, game_id=game_id, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    
+    for key, value in updates.dict().items():
+        if value is not None:
+            setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return user
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
