@@ -2,7 +2,7 @@
 
 ## Développement
 
-Python 3.6+ nécessaire
+Python 3.7+ nécessaire
 
 * Création du virtualenv (à ne faire qu'une fois) : `python3 -m venv .venv`
 * Activation du virtualenv : `source .venv/bin/activate`

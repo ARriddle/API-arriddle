@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel, Schema, PositiveInt
 from typing import List, Optional
 from sqlalchemy import Boolean, Table, Column, Integer, String, create_engine, Float, ARRAY
@@ -11,10 +12,10 @@ class Keypoint(BaseModel):
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
     points: int = Schema(..., description="Nombre de points")
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
-    latitude: Optional[float] = Schema(..., description = "Latitude du point clef")
-    longitude: Optional[float] = Schema(..., description = "Longitude du point clef")
-    users_solvers: List[BaseModel] = Schema([], description="Utilisateurs ayant résolu le point clef")
-    game_id: Optional[str] = Schema(None, description="Id de la partie")
+    latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
+    longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
+    users_solvers: List[User] = Schema([], description="Utilisateurs ayant résolu le point clef")
+    game_id: str = Schema(None, description="Id de la partie")
 
     class Config:
         orm_mode = True
@@ -24,26 +25,56 @@ class User(BaseModel):
     id: int = Schema(..., gt=0, description="Id de l'utilisateur")
     name: str = Schema(..., min_length=1, description="Nom de l'utilisateur")
     points: int = Schema(..., description="Nombre de points")
-    keypoints_solved: Optional[List[BaseModel]] = Schema([], description="Points clefs résolus")
-    game_id: Optional[str] = Schema(None, description="Id de la partie")
+    keypoints_solved: List[Keypoint] = Schema([], description="Points clefs résolus")
+    game_id: str = Schema(None, description="Id de la partie")
 
     class Config:
         orm_mode = True
-
 
 class Game(BaseModel):
     id: str = Schema(..., description="Id de la partie")
     name: str = Schema(..., min_length=1, description="Nom de la partie")
-    duration: Optional[int] = Schema(..., description="Durée de la partie")
+    duration: Optional[int] = Schema(None, description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
-    nb_player_max: Optional[int] = Schema(..., description="Nombre de joueurs max")
-    keypoints: Optional[List[Keypoint]] = Schema([], description="Points clefs composant la partie")
-    users: Optional[List[User]] = Schema([], description="Joueurs de la partie")
+    nb_player_max: Optional[int] = Schema(None, description="Nombre de joueurs max")
+    keypoints: List[Keypoint] = Schema([], description="Points clefs composant la partie")
+    users: List[User] = Schema([], description="Joueurs de la partie")
 
     class Config:
         orm_mode = True
 
+# ---------- Classes pour les routes PUT
 
+class PutKeypoint(BaseModel):
+    name: Optional[str] = Schema(None, min_length=1, description="Nom du point d'intérêt")
+    points: Optional[int] = Schema(None, description="Nombre de points")
+    url_cible: Optional[str] = Schema(None, description="Url de l'image")
+    latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
+    longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
+
+    class Config:
+        orm_mode = True
+
+class PutUser(BaseModel):
+    name: Optional[str] = Schema(None, min_length=1, description="Nom de l'utilisateur")
+    points: Optional[int] = Schema(None, description="Nombre de points")
+
+    class Config:
+        orm_mode = True
+
+class PutGame(BaseModel):
+    name: Optional[str] = Schema(None, min_length=1, description="Nom de la partie")
+    duration: Optional[int] = Schema(None, description="Durée de la partie")
+    time_start: Optional[int] = Schema(None, description="Heure de début de la partie")
+    nb_player_max: Optional[int] = Schema(None, description="Nombre de joueurs max")
+  
+    class Config:
+        orm_mode = True
+
+PutKeypoint.update_forward_refs()
+PutUser.update_forward_refs()
+Keypoint.update_forward_refs()
+User.update_forward_refs()
 Base = declarative_base()
 
 
@@ -60,28 +91,24 @@ class KeypointDB(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
     points = Column(Integer, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
-    url_cible = Column(String)
+    latitude = Column(Float, nullable=True)    
+    longitude = Column(Float, nullable=True)
+    url_cible = Column(String, nullable=True)
     game_id = Column(String, ForeignKey("games.id"), nullable=False)
     # jointure
     game = relationship("GameDB", back_populates="keypoints")
     users_solvers = relationship("UserDB", secondary=keypoints_users, back_populates="keypoints_solved")
 
 
-
-
 class GameDB(Base):
     __tablename__ = "games"
     id = Column(String, primary_key=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
-    duration = Column(Integer, nullable=False)
+    duration = Column(Integer, nullable=True)
     time_start = Column(Integer, nullable=False)
-    nb_player_max = Column(Integer, nullable=False)
-    keypoints = relationship("KeypointDB", back_populates="game")
-    users = relationship("UserDB", back_populates="game")
-
-
+    nb_player_max = Column(Integer, nullable=True)
+    keypoints = relationship("KeypointDB", back_populates="game", cascade="delete")
+    users = relationship("UserDB", back_populates="game", cascade="delete")
 
 
 class UserDB(Base):
