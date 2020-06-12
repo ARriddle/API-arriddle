@@ -280,5 +280,50 @@ async def create_game(
     db_session.refresh(new_game)
     return new_game
 
+@app.post("/games/{game_id}/keypoints", summary="Crée un keypoint")
+async def create_keypoints(
+    name: str,
+    points: int,
+    game_id: str,
+    latitude: float = None,
+    longitude: float = None,
+    url_cible: str = None,
+    db: Session = Depends(get_db)):
+
+
+    # Génération de la nouvelle partie
+    new_keypoint = KeypointDB(
+        name=name,
+        points=points,
+        game_id=game_id,
+        latitude=latitude,
+        longitude=longitude,
+        url_cible=url_cible,
+    )
+    db_session.add(new_keypoint)
+    db_session.commit()
+    db_session.refresh(new_keypoint)
+    return new_keypoint
+
+@app.post("/games/{game_id}/users", summary="Crée un user")
+async def create_keypoints(
+    name: str,
+    points: int,
+    game_id: str,
+    db: Session = Depends(get_db)):
+
+
+    # Génération de la nouvelle partie
+    new_user = UserDB(
+        name=name,
+        points=points,
+        game_id=game_id,
+    )
+    db_session.add(new_user)
+    db_session.commit()
+    db_session.refresh(new_user)
+    return new_user
+
+
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
