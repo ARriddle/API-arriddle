@@ -12,7 +12,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:arridle.rezoleo.fr"
+      - "traefik.frontend.rule=Host:arriddle.rezoleo.fr"
       - "traefik.port=8000"
       - "traefik.network=proxy"
     volumes:
