@@ -82,8 +82,8 @@ class GameDB(Base):
     duration = Column(Integer, nullable=True)
     time_start = Column(Integer, nullable=False)
     nb_player_max = Column(Integer, nullable=True)
-    keypoints = relationship("KeypointDB", back_populates="game")
-    users = relationship("UserDB", back_populates="game")
+    keypoints = relationship("KeypointDB", back_populates="game", cascade="delete")
+    users = relationship("UserDB", back_populates="game", cascade="delete")
 
 
 

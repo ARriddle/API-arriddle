@@ -324,6 +324,15 @@ async def create_keypoints(
     db_session.refresh(new_user)
     return new_user
 
+# ------------------------- DELETE ------------------------------
+@app.delete("/games/{game_id}", summary="Supprime une partie")
+async def delete_game(
+    game_id: str,
+    db: Session = Depends(get_db)):
+
+    game = db_session.query(GameDB).filter(GameDB.id==game_id).first()
+    db_session.delete(game)
+    db_session.commit()
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
