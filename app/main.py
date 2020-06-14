@@ -31,107 +31,114 @@ db_session = SessionLocal()
 try:
     test_games = [
         UserDB(
-            name="toto",
-            points=20,
+            name="Alvin",
+            points=10,
             game_id="JKDKJFD3",
             keypoints_solved=[]
         ),
         UserDB(
-            name="titi",
-            points=203,
-            game_id="DJ83JDJF",
+            name="Erik",
+            points=25,
+            game_id="JKDKJFD3",
             keypoints_solved=[]
 
         ),
         UserDB(
-            name="tibi",
-            points=223,
-            game_id="FUEIJE23",
+            name="Ashka",
+            points=5,
+            game_id="JKDKJFD3",
             keypoints_solved=[]
 
         ),
         UserDB(
-            name="thib",
-            points=2343,
-            game_id="FUEIJE23",
+            name="Johan",
+            points=10,
+            game_id="JKDKJFD3",
+            keypoints_solved=[]
+        ),
+
+        UserDB(
+            name="Wincaml",
+            points=15,
+            game_id="JKDKJFD3",
             keypoints_solved=[]
         ),
         KeypointDB(
             id=4,
-            name="Centrale Paris",
+            name="La résidence Léonard de Vinci",
             points=10,
-            url_cible="https://duckduckgo.com",
-            latitude=323424,
-            longitude=234323434,
-            game_id="FUEIJE23",
+            url_cible="https://rezoleo.fr",
+            latitude=50.60891984079241,
+            longitude=3.1479595389831827,
+            game_id="JKDKJFD3",
             users_solvers=[]
         ),
         KeypointDB(
             id=5,
-            name="Centrale Lyon",
+            name="Centrale Lille",
             points=10,
-            url_cible="https://duckduckgo.com",
-            latitude=32342334,
-            longitude=234323543,
-            game_id="FUEIJE23",
+            url_cible="https://centralelille.fr",
+            latitude=50.60671204431724,
+            longitude=3.1362654536795187,
+            game_id="JKDKJFD3",
             users_solvers=[]
 
         ),
         KeypointDB(
             id=1,
-            name="Centrale Lille",
-            points=10,
-            url_cible="https://duckduckgo.com",
-            latitude=1232,
-            longitude=12342,
+            name="Chimie Lille",
+            points=20,
+            url_cible="https://www.ensc-lille.fr/",
+            latitude=50.60961737017392,
+            longitude=3.1465197652352384,
             game_id="JKDKJFD3",
             users_solvers=[]
 
         ),
         KeypointDB(
             id=2,
-            name="IG21",
+            name="Stade Pierre Mauroy",
             points=30,
-            url_cible="https://duckduckgo.com",
-            latitude=12,
-            longitude=132,
-            game_id="DJ83JDJF",
+            url_cible="https://www.stade-pierre-mauroy.com/",
+            latitude=50.611909431152135,
+            longitude=3.1306297350229695,
+            game_id="JKDKJFD3",
             users_solvers=[]
         ),
         KeypointDB(
             id=3,
-            name="ITEM",
+            name="Polytech Lille",
             points=20,
-            url_cible="https://duckduckgo.com",
-            latitude=3234,
-            longitude=23432,
-            game_id="DJ83JDJF",
+            url_cible="https://www.polytech-lille.fr/",
+            latitude=50.607782321056426,
+            longitude=3.136245795396877,
+            game_id="JKDKJFD3",
             users_solvers=[]
         ),
         GameDB(
             id="JKDKJFD3",
-            name="Partie 1",
-            duration=7200,
-            time_start=1591019348,
+            name="Découverte du campus universitaire de Villeneuve d'Ascq",
+            duration=10800,
+            time_start=1592645436,
             nb_player_max=12,
             keypoints=[],
             users=[]
         ),
         GameDB(
             id="DJ83JDJF",
-            name="Partie 2",
-            duration=3600,
+            name="Découverte de Paris",
+            duration=21600,
             time_start=1591039848,
-            nb_player_max=12,
+            nb_player_max=8,
             keypoints=[],
             users=[],
         ),
         GameDB(
             id="FUEIJE23",
-            name="Partie 3",
-            duration=9780,
+            name="Découverte de Lille",
+            duration=9000,
             time_start=1591019348,
-            nb_player_max=8,
+            nb_player_max=6,
             keypoints=[],
             users=[]
         ),
@@ -286,7 +293,7 @@ async def create_game(
 
 
 @app.post("/games/{game_id}/keypoints", summary="Crée un keypoint")
-async def create_keypoints(
+async def create_keypoint(
         name: str,
         points: int,
         game_id: str,
@@ -311,7 +318,7 @@ async def create_keypoints(
 
 
 @app.post("/games/{game_id}/users", summary="Crée un user")
-async def create_keypoints(
+async def create_user(
         name: str,
         points: int,
         game_id: str,
