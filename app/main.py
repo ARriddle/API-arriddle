@@ -293,7 +293,7 @@ async def create_game(
 
 
 @app.post("/games/{game_id}/keypoints", summary="Crée un keypoint")
-async def create_keypoints(
+async def create_keypoint(
         name: str,
         points: int,
         game_id: str,
@@ -318,7 +318,7 @@ async def create_keypoints(
 
 
 @app.post("/games/{game_id}/users", summary="Crée un user")
-async def create_keypoints(
+async def create_user(
         name: str,
         points: int,
         game_id: str,
