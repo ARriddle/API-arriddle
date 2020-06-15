@@ -11,6 +11,8 @@ class Keypoint(BaseModel):
     id: int = Schema(..., gt=0, description="Id du points d'intérêt")
     name: str = Schema(..., min_length=1, description="Nom du point d'intérêt")
     points: int = Schema(..., description="Nombre de points")
+    description: str = Schema(..., min_length=1, description="Question")
+    solution: str = Schema(..., min_length=1, description="Solution")
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
     latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
     longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
@@ -34,6 +36,7 @@ class User(BaseModel):
 class Game(BaseModel):
     id: str = Schema(..., description="Id de la partie")
     name: str = Schema(..., min_length=1, description="Nom de la partie")
+    visibility: bool = Schema(..., description="Partie publique ou privée")
     duration: Optional[int] = Schema(None, description="Durée de la partie")
     time_start: int = Schema(..., description="Heure de début de la partie")
     nb_player_max: Optional[int] = Schema(None, description="Nombre de joueurs max")
@@ -48,6 +51,8 @@ class Game(BaseModel):
 class PutKeypoint(BaseModel):
     name: Optional[str] = Schema(None, min_length=1, description="Nom du point d'intérêt")
     points: Optional[int] = Schema(None, description="Nombre de points")
+    description: Optional[str] = Schema(None, description="Question")
+    solution: Optional[str] = Schema(None, description="Solution")
     url_cible: Optional[str] = Schema(None, description="Url de l'image")
     latitude: Optional[float] = Schema(None, description = "Latitude du point clef")
     longitude: Optional[float] = Schema(None, description = "Longitude du point clef")
@@ -64,6 +69,7 @@ class PutUser(BaseModel):
 
 class PutGame(BaseModel):
     name: Optional[str] = Schema(None, min_length=1, description="Nom de la partie")
+    visibility: Optional[bool] = Schema(None, descrition="Partie publique ou privée")
     duration: Optional[int] = Schema(None, description="Durée de la partie")
     time_start: Optional[int] = Schema(None, description="Heure de début de la partie")
     nb_player_max: Optional[int] = Schema(None, description="Nombre de joueurs max")
@@ -90,6 +96,8 @@ class KeypointDB(Base):
     __tablename__ = "keypoints"
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable = False)
+    solution = Column(String, nullable=False)
     points = Column(Integer, nullable=False)
     latitude = Column(Float, nullable=True)    
     longitude = Column(Float, nullable=True)
@@ -104,6 +112,7 @@ class GameDB(Base):
     __tablename__ = "games"
     id = Column(String, primary_key=True, nullable=False)
     name = Column(String, nullable=False, unique=True)
+    visibility = Column(Boolean, nullable= False)
     duration = Column(Integer, nullable=True)
     time_start = Column(Integer, nullable=False)
     nb_player_max = Column(Integer, nullable=True)

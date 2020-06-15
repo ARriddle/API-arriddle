@@ -66,6 +66,8 @@ try:
         KeypointDB(
             id=4,
             name="La résidence Léonard de Vinci",
+            description="Quel est l'association qui s'occupe d'Internet ?",
+            solution="Rézoléo",
             points=10,
             url_cible="https://rezoleo.fr",
             latitude=50.60891984079241,
@@ -76,6 +78,8 @@ try:
         KeypointDB(
             id=5,
             name="Centrale Lille",
+            description="Quel est le prénom du meilleur prof d'info de Centrale ?",
+            solution="Thomas",
             points=10,
             url_cible="https://centralelille.fr",
             latitude=50.60671204431724,
@@ -87,6 +91,8 @@ try:
         KeypointDB(
             id=1,
             name="Chimie Lille",
+            description="Comment s'appelle l'organisme lié à la fusion avec Centrale ?",
+            solution="Centrale Lille Institut",
             points=20,
             url_cible="https://www.ensc-lille.fr/",
             latitude=50.60961737017392,
@@ -98,6 +104,8 @@ try:
         KeypointDB(
             id=2,
             name="Stade Pierre Mauroy",
+            description="Quel est l'accronyme de l'équipe de Foot Lilloise ?",
+            solution="LOSC",
             points=30,
             url_cible="https://www.stade-pierre-mauroy.com/",
             latitude=50.611909431152135,
@@ -108,6 +116,8 @@ try:
         KeypointDB(
             id=3,
             name="Polytech Lille",
+            description="Quel est la réponse de la vie, de l'univers et de tout le reste ?",
+            solution="42",
             points=20,
             url_cible="https://www.polytech-lille.fr/",
             latitude=50.607782321056426,
@@ -118,6 +128,7 @@ try:
         GameDB(
             id="JKDKJFD3",
             name="Découverte du campus universitaire de Villeneuve d'Ascq",
+            visibility=True,
             duration=10800,
             time_start=1592645436,
             nb_player_max=12,
@@ -127,6 +138,7 @@ try:
         GameDB(
             id="DJ83JDJF",
             name="Découverte de Paris",
+            visibility=True,
             duration=21600,
             time_start=1591039848,
             nb_player_max=8,
@@ -136,6 +148,7 @@ try:
         GameDB(
             id="FUEIJE23",
             name="Découverte de Lille",
+            visibility=False,
             duration=9000,
             time_start=1591019348,
             nb_player_max=6,
@@ -273,6 +286,7 @@ async def read_user(user_id: int, game_id: str, db: Session = Depends(get_db)):
 @app.post("/games", summary="Crée une partie")
 async def create_game(
         name: str,
+        visibility: str,
         time_start: int,
         nb_player_max: int = None,
         duration: int = None,
@@ -282,6 +296,7 @@ async def create_game(
     new_game = GameDB(
         id=gen_id(8),
         name=name,
+        visibility=visibility,
         duration=duration,
         time_start=time_start,
         nb_player_max=nb_player_max,
@@ -295,6 +310,8 @@ async def create_game(
 @app.post("/games/{game_id}/keypoints", summary="Crée un keypoint")
 async def create_keypoint(
         name: str,
+        description: str,
+        solution: str,
         points: int,
         game_id: str,
         latitude: float = None,
@@ -305,6 +322,8 @@ async def create_keypoint(
     # Génération de la nouvelle partie
     new_keypoint = KeypointDB(
         name=name,
+        description=description,
+        solution=solution,
         points=points,
         game_id=game_id,
         latitude=latitude,
