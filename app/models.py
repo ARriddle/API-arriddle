@@ -46,7 +46,16 @@ class Game(BaseModel):
     class Config:
         orm_mode = True
 
-# ---------- Classes pour les routes PUT
+class Solve(BaseModel):
+    keypoint_id: int = Schema(..., gt=0, description="Id du points d'intérêt")
+    user_id: int = Schema(..., gt=0, description="Id de l'utilisateur")
+    game_id: str = Schema(..., description="Id de la partie")
+
+
+    class Config:
+        orm_mode = True
+
+# ---------- Classes pour les routes PUT -----------------
 
 class PutKeypoint(BaseModel):
     name: Optional[str] = Schema(None, min_length=1, description="Nom du point d'intérêt")
@@ -77,6 +86,8 @@ class PutGame(BaseModel):
     class Config:
         orm_mode = True
 
+
+
 PutKeypoint.update_forward_refs()
 PutUser.update_forward_refs()
 Keypoint.update_forward_refs()
@@ -87,10 +98,13 @@ Base = declarative_base()
 # Transcription des classes de models.py pour les rendre
 # au même format que la BdD.
 
-keypoints_users = Table('association', Base.metadata,
-    Column('id_keypoint', Integer, ForeignKey('keypoints.id')),
-    Column('id_user', Integer, ForeignKey('users.id'))
-)
+class SolveDB(Base):
+    __tablename__ = "solves"
+    user_id = Column(Integer, primary_key=True, nullable=False)
+    keypoint_id = Column(Integer, primary_key=True, nullable=False)
+    game_id = Column(String, primary_key=True, nullable=False)
+
+
 
 class KeypointDB(Base):
     __tablename__ = "keypoints"
@@ -105,7 +119,6 @@ class KeypointDB(Base):
     game_id = Column(String, ForeignKey("games.id"), nullable=False)
     # jointure
     game = relationship("GameDB", back_populates="keypoints")
-    users_solvers = relationship("UserDB", secondary=keypoints_users, back_populates="keypoints_solved")
 
 
 class GameDB(Base):
@@ -127,4 +140,3 @@ class UserDB(Base):
     points = Column(Integer, nullable=False)
     game_id = Column(String, ForeignKey("games.id"), nullable=False)
     game = relationship("GameDB", back_populates="users")
-    keypoints_solved = relationship("KeypointDB", secondary=keypoints_users, back_populates="users_solvers")

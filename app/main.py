@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Depends, Form, File, UploadFile
-from models import Base, Game, GameDB, PutGame, Keypoint, KeypointDB, PutKeypoint, User, UserDB,PutUser
+from models import Base, Game, GameDB, PutGame, Keypoint, KeypointDB, PutKeypoint, User, UserDB, PutUser, Solve, SolveDB
 from functions import gen_id
 
 
@@ -34,34 +34,27 @@ try:
             name="Alvin",
             points=10,
             game_id="JKDKJFD3",
-            keypoints_solved=[]
         ),
         UserDB(
             name="Erik",
             points=25,
             game_id="JKDKJFD3",
-            keypoints_solved=[]
-
         ),
         UserDB(
             name="Ashka",
             points=5,
             game_id="JKDKJFD3",
-            keypoints_solved=[]
-
         ),
         UserDB(
             name="Johan",
             points=10,
             game_id="JKDKJFD3",
-            keypoints_solved=[]
         ),
 
         UserDB(
             name="Wincaml",
             points=15,
             game_id="JKDKJFD3",
-            keypoints_solved=[]
         ),
         KeypointDB(
             id=4,
@@ -73,7 +66,6 @@ try:
             latitude=50.60891984079241,
             longitude=3.1479595389831827,
             game_id="JKDKJFD3",
-            users_solvers=[]
         ),
         KeypointDB(
             id=5,
@@ -85,8 +77,6 @@ try:
             latitude=50.60671204431724,
             longitude=3.1362654536795187,
             game_id="JKDKJFD3",
-            users_solvers=[]
-
         ),
         KeypointDB(
             id=1,
@@ -98,8 +88,6 @@ try:
             latitude=50.60961737017392,
             longitude=3.1465197652352384,
             game_id="JKDKJFD3",
-            users_solvers=[]
-
         ),
         KeypointDB(
             id=2,
@@ -111,7 +99,6 @@ try:
             latitude=50.611909431152135,
             longitude=3.1306297350229695,
             game_id="JKDKJFD3",
-            users_solvers=[]
         ),
         KeypointDB(
             id=3,
@@ -123,7 +110,6 @@ try:
             latitude=50.607782321056426,
             longitude=3.136245795396877,
             game_id="JKDKJFD3",
-            users_solvers=[]
         ),
         GameDB(
             id="JKDKJFD3",
@@ -155,6 +141,16 @@ try:
             keypoints=[],
             users=[]
         ),
+        SolveDB(
+            user_id=1,
+            keypoint_id=1,
+            game_id="JKDKJFD3"
+        ),
+        SolveDB(
+            user_id=1,
+            keypoint_id=4,
+            game_id="JKDKJFD3"
+        )
     ]
 
     db_session.add_all(test_games)
@@ -223,6 +219,14 @@ def get_all_users(db_session: Session, game_id: str) -> List[Optional[UserDB]]:
     )
 
 
+def get_solves(db_session: Session, game_id: str) -> List[Optional[SolveDB]]:
+    return (
+        db_session.query(SolveDB)
+        .filter(SolveDB.game_id == game_id)
+        .all()
+    )
+
+
 app = FastAPI(title="ARriddle API", version=os.getenv("API_VERSION", "dev"))
 
 # ---------------------------------- GET -------------------------------
@@ -275,10 +279,18 @@ async def read_users(game_id: str, db: Session = Depends(get_db)):
 
 @app.get("/games/{game_id}/users/{user_id}", summary="Récupère l'utilisateur correspondant à l'id de la partie correspondante à l'id de partie", response_model=User)
 async def read_user(user_id: int, game_id: str, db: Session = Depends(get_db)):
-    users = get_user(db, user_id=user_id, game_id=game_id)
-    if users is None:
+    user = get_user(db, user_id=user_id, game_id=game_id)
+    if user is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
-    return users
+    return user
+
+
+@app.get("/games/{game_id}/solves", summary="Récupère les références des résolutions", response_model=List[Solve])
+async def read_solves(game_id: str, db: Session = Depends(get_db)):
+    solve = get_solves(db, game_id=game_id)
+    if solve is None:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+    return solve
 
 # ---------------------------------- POST -------------------------------
 
@@ -354,6 +366,15 @@ async def create_user(
     db_session.refresh(new_user)
     return new_user
 
+
+@app.post("/games/{game_id}/solves", summary="Créé une validation", response_model=Solve)
+async def update_solve(game_id: str, user_id: int, keypoint_id: int, db: Session = Depends(get_db)):
+    solve = SolveDB(keypoint_id=keypoint_id, user_id=user_id, game_id=game_id)
+    db_session.add(solve)
+    db_session.commit()
+    db_session.refresh(solve)
+    return solve
+
 # ------------------------- DELETE ------------------------------
 
 
@@ -375,7 +396,8 @@ async def delete_user(
         user_id: int,
         db: Session = Depends(get_db)):
     try:
-        user = db_session.query(UserDB).filter(UserDB.id == user_id).filter(UserDB.game_id==game_id).first()
+        user = db_session.query(UserDB).filter(
+            UserDB.id == user_id).filter(UserDB.game_id == game_id).first()
         db_session.delete(user)
         db_session.commit()
     except:
@@ -388,26 +410,27 @@ async def delete_keypoint(
         keypoint_id: int,
         db: Session = Depends(get_db)):
     try:
-        keypoint = db_session.query(KeypointDB).filter(KeypointDB.id == keypoint_id).filter(KeypointDB.game_id==game_id).first()
+        keypoint = db_session.query(KeypointDB).filter(
+            KeypointDB.id == keypoint_id).filter(KeypointDB.game_id == game_id).first()
         db_session.delete(keypoint)
         db_session.commit()
     except:
-            raise HTTPException(status_code=HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
 
 
 # ---------------------------- PUT --------------------------------------------
 
 @app.put("/games/{game_id}", summary="Met à jour une partie", response_model=Game)
 async def update_game(
-    game_id: str, 
+    game_id: str,
     updates: PutGame,
     db: Session = Depends(get_db)
 ):
-    
+
     game = get_game(db, game_id=game_id)
     if game is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
-    
+
     for key, value in updates.dict().items():
         if value is not None:
             setattr(game, key, value)
@@ -415,18 +438,19 @@ async def update_game(
     db.refresh(game)
     return game
 
+
 @app.put("/games/{game_id}/keypoints/{keypoint_id}", summary="Met à jour un keypoint", response_model=Keypoint)
 async def update_game(
-    game_id: str, 
+    game_id: str,
     keypoint_id: int,
     updates: PutKeypoint,
     db: Session = Depends(get_db)
 ):
-    
+
     keypoint = get_keypoint(db, game_id=game_id, keypoint_id=keypoint_id)
     if keypoint is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
-    
+
     for key, value in updates.dict().items():
         if value is not None:
             setattr(keypoint, key, value)
@@ -434,24 +458,23 @@ async def update_game(
     db.refresh(keypoint)
     return keypoint
 
+
 @app.put("/games/{game_id}/users/{user_id}", summary="Met à jour un user", response_model=User)
 async def update_game(
-    game_id: str, 
+    game_id: str,
     user_id: int,
     updates: PutUser,
     db: Session = Depends(get_db)
 ):
-    
+
     user = get_user(db, game_id=game_id, user_id=user_id)
     if user is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
-    
     for key, value in updates.dict().items():
         if value is not None:
             setattr(user, key, value)
     db.commit()
     db.refresh(user)
     return user
-
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
