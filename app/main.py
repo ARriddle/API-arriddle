@@ -298,7 +298,7 @@ async def read_solves(game_id: str, db: Session = Depends(get_db)):
 @app.post("/games", summary="Crée une partie")
 async def create_game(
         name: str,
-        visibility: str,
+        visibility: bool,
         time_start: int,
         nb_player_max: int = None,
         duration: int = None,
